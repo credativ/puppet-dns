@@ -49,6 +49,7 @@ class dns (
   $service_ensure       = $::dns::params::service_ensure,
   $service_enable       = $::dns::params::service_enable,
   $additional_options   = $::dns::params::additional_options,
+  $custom_includes      = $::dns::params::custom_includes,
 ) inherits dns::params {
   validate_array($dns::forwarders)
   validate_array($dns::allow_recursion)

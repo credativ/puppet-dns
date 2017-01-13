@@ -24,5 +24,12 @@ acl "<%= acl_name %>"  {
 };
 <%- end -%>
 
+<%- if scope.lookupvar('::dns::custom_includes').any? -%>
+// custom includes
+<%- scope.lookupvar('::dns::custom_includes').each do |filename| -%>
+include "<%= filename %>";
+<%- end -%>
+<%- end -%>
+
 // Public view read by Server Admin
 include "<%= scope.lookupvar('::dns::publicviewpath') %>";

@@ -48,4 +48,6 @@ class dns::config {
     group => $dns::params::group,
     mode  => '0640',
   }
+
+  dns::custom_include { $::dns::custom_includes: }
 }
