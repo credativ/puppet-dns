@@ -4,7 +4,7 @@
 # DNS module for Puppet
 
 Installs and manages an ISC BIND DNS server with basic zones, primarily for The
-Foreman.
+Foreman. It supports theforeman/puppet-dns' views feature on Puppet 3 masters with future parser.
 
 # Usage
 
