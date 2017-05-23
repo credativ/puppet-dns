@@ -7,30 +7,36 @@
 # $manage_file_name::           Whether to set the file parameter in the zone file.
 #
 define dns::zone (
-  Array[String] $target_views                         = [],
-  String $zonetype                                    = 'master',
-  String $soa                                         = $::fqdn,
-  Boolean $reverse                                    = false,
-  String $ttl                                         = '10800',
-  Stdlib::Compat::Ip_address $soaip                   = $::ipaddress,
-  Integer $refresh                                    = 86400,
-  Integer $update_retry                               = 3600,
-  Integer $expire                                     = 604800,
-  Integer $negttl                                     = 3600,
-  Integer $serial                                     = 1,
-  Array $masters                                      = [],
-  Array $allow_transfer                               = [],
-  Array $allow_query                                  = [],
-  Array $also_notify                                  = [],
-  String $zone                                        = $title,
-  Optional[String] $contact                           = undef,
-  Stdlib::Absolutepath $zonefilepath                  = $::dns::zonefilepath,
-  String $filename                                    = "db.${title}",
-  Boolean $manage_file                                = true,
-  Boolean $manage_file_name                           = false,
-  Enum['first', 'only'] $forward                      = 'first',
-  Array $forwarders                                   = [],
-  Optional[Enum['yes', 'no', 'explicit']] $dns_notify = undef,
+    Array[String] $target_views                         = [],
+    String $zonetype                                    = 'master',
+    String $soa                                         = $::fqdn,
+    Boolean $reverse                                    = false,
+    String $ttl                                         = '10800',
+    Pattern[
+      /^((([0-9](?!\d)|[1-9][0-9](?!\d)|1[0-9]{2}(?!\d)|2[0-4][0-9](?!\d)|25[0-5](?!\d))[.]){3}([0-9](?!\d)|[1-9][0-9](?!\d)|1[0-9]{2}(?!\d)|2[0-4][0-9](?!\d)|25[0-5](?!\d)))(\/((([0-9](?!\d)|[1-9][0-9](?!\d)|1[0-9]{2}(?!\d)|2[0-4][0-9](?!\d)|25[0-5](?!\d))[.]){3}([0-9](?!\d)|[1-9][0-9](?!\d)|1[0-9]{2}(?!\d)|2[0-4][0-9](?!\d)|25[0-5](?!\d))|[0-9]+))?$/,
+      /\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/]
+            $soaip                                      = $::ipaddress,
+    Integer $refresh                                    = 86400,
+    Integer $update_retry                               = 3600,
+    Integer $expire                                     = 604800,
+    Integer $negttl                                     = 3600,
+    Integer $serial                                     = 1,
+    Array $masters                                      = [],
+    Array $allow_transfer                               = [],
+    Array $allow_query                                  = [],
+    Array $also_notify                                  = [],
+    String $zone                                        = $title,
+    Optional[String] $contact                           = undef,
+    Boolean $manage_file                                = true,  # content, true value implies manage_file_name
+    Boolean $manage_file_name                           = false, # set file parameter in zonefile
+    Pattern[
+      /^(([a-zA-Z]:[\\\/])|([\\\/][\\\/][^\\\/]+[\\\/][^\\\/]+)|([\\\/][\\\/]\?[\\\/][^\\\/]+))/,
+      /^\/([^\/\0]+\/*)+$/]
+            $zonefilepath                               = $::dns::zonefilepath,
+    String  $filename                                   = "db.${title}",
+    Enum['first', 'only'] $forward                      = 'first',
+    Array $forwarders                                   = [],
+    Optional[Enum['yes', 'no', 'explicit']] $dns_notify = undef,
 ) {
 
   $_contact = pick($contact, "root.${zone}.")
